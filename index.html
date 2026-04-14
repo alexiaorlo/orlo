@@ -59,6 +59,13 @@
       font-size: 9px;
       opacity: 0.6;
     }
+
+    /* Custom circle marker */
+    .orlo-marker {
+      border-radius: 50%;
+      border: 2.5px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
   </style>
 </head>
 <body>
@@ -86,6 +93,96 @@
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map);
+
+    // Category colours
+    const COLOURS = {
+      restaurant: '#4CAF82',  // green
+      sport:      '#4A90D9',  // blue
+      culture:    '#9B6FD4',  // purple
+      experience: '#F5A623'   // amber
+    };
+
+    function circleIcon(colour) {
+      return L.divIcon({
+        className: '',
+        html: `<div class="orlo-marker" style="width:18px;height:18px;background:${colour};"></div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      });
+    }
+
+    const venues = [
+      {
+        name: 'Josephine Bouchon',
+        category: 'restaurant',
+        lat: 51.4889, lng: -0.1701,
+        description: 'French bistro on Elystan Street',
+        price: '£35pp',
+        availability: 'Available now'
+      },
+      {
+        name: 'White City Tennis',
+        category: 'sport',
+        lat: 51.4812, lng: -0.1756,
+        description: 'Book a court on Fulham Road',
+        price: '£18 per hour',
+        availability: 'Available now'
+      },
+      {
+        name: 'Saatchi Gallery',
+        category: 'culture',
+        lat: 51.4921, lng: -0.1598,
+        description: "Free contemporary art on King's Road",
+        price: 'Free',
+        availability: 'Opens at 10am'
+      },
+      {
+        name: 'Turning Earth Pottery',
+        category: 'experience',
+        lat: 51.4834, lng: -0.1823,
+        description: 'Wheel throwing class',
+        price: '£45pp',
+        availability: '2 spots left'
+      },
+      {
+        name: 'The Wee Sister',
+        category: 'restaurant',
+        lat: 51.4856, lng: -0.1734,
+        description: 'Irish wine bar on Park Walk',
+        price: '£25pp',
+        availability: 'Available now'
+      },
+      {
+        name: 'Chelsea Physic Garden',
+        category: 'culture',
+        lat: 51.4847, lng: -0.1689,
+        description: 'Hidden historic garden',
+        price: '£12',
+        availability: 'Opens at 11am'
+      },
+      {
+        name: 'Rabbit Restaurant',
+        category: 'restaurant',
+        lat: 51.4878, lng: -0.1712,
+        description: "Farm to fork on King's Road",
+        price: '£40pp',
+        availability: 'Available now'
+      },
+      {
+        name: 'Three Darlings',
+        category: 'experience',
+        lat: 51.4901, lng: -0.1623,
+        description: 'All day cafe on Pavilion Road',
+        price: '£15pp',
+        availability: 'Available now'
+      }
+    ];
+
+    venues.forEach(v => {
+      const colour = COLOURS[v.category];
+      const marker = L.marker([v.lat, v.lng], { icon: circleIcon(colour) });
+      marker.addTo(map);
+    });
   </script>
 
 </body>
