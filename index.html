@@ -67,6 +67,93 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
     }
 
+    /* ── Filter pills ── */
+    #filter-bar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    #filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pill {
+      flex-shrink: 0;
+      height: 34px;
+      padding: 0 15px;
+      border-radius: 17px;
+      background: #F7F5F0;
+      color: #1A1A1A;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.18);
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.18s, color 0.18s, transform 0.1s;
+    }
+
+    .pill:active {
+      transform: scale(0.95);
+    }
+
+    .pill.active {
+      background: #1A1A1A;
+      color: #F7F5F0;
+    }
+
+    /* ── Bottom nav ── */
+    #bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 150;
+      background: #1A1A1A;
+      display: flex;
+      align-items: flex-start;
+      padding-top: 12px;
+      padding-bottom: env(safe-area-inset-bottom, 8px);
+      border-top: 1px solid rgba(247, 245, 240, 0.08);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding-bottom: 4px;
+      color: rgba(247, 245, 240, 0.38);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s;
+      user-select: none;
+    }
+
+    .nav-item.active {
+      color: #F7F5F0;
+    }
+
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+    }
+
     /* ── Bottom sheet ── */
     #sheet {
       position: fixed;
@@ -76,7 +163,7 @@
       z-index: 200;
       background: #F7F5F0;
       border-radius: 20px 20px 0 0;
-      padding: 12px 24px 36px;
+      padding: 12px 24px calc(28px + env(safe-area-inset-bottom, 0px));
       box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
       transform: translateY(100%);
       transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
@@ -177,6 +264,16 @@
     <span id="logo">Orlo</span>
   </div>
 
+  <!-- Filter pills -->
+  <div id="filter-bar">
+    <button class="pill active" data-filter="all">All</button>
+    <button class="pill" data-filter="tonight">Tonight</button>
+    <button class="pill" data-filter="food">Food</button>
+    <button class="pill" data-filter="sport">Sport</button>
+    <button class="pill" data-filter="culture">Culture</button>
+    <button class="pill" data-filter="free">Free</button>
+  </div>
+
   <!-- Bottom sheet -->
   <div id="sheet" role="dialog" aria-modal="true" aria-label="Venue details">
     <div id="sheet-handle"></div>
@@ -189,6 +286,38 @@
     </div>
     <button id="sheet-book">Book Now</button>
   </div>
+
+  <!-- Bottom nav -->
+  <nav id="bottom-nav" aria-label="Main navigation">
+    <div class="nav-item active" data-nav="map">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg>
+      <span>Map</span>
+    </div>
+    <div class="nav-item" data-nav="discover">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/>
+      </svg>
+      <span>Discover</span>
+    </div>
+    <div class="nav-item" data-nav="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7.5"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span>Search</span>
+    </div>
+    <div class="nav-item" data-nav="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Profile</span>
+    </div>
+  </nav>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -323,14 +452,49 @@
     // Prevent sheet taps from bubbling to the map
     sheet.addEventListener('click', e => e.stopPropagation());
 
+    // Store marker reference on each venue object
     venues.forEach(v => {
       const colour = COLOURS[v.category];
-      const marker = L.marker([v.lat, v.lng], { icon: circleIcon(colour) });
-      marker.on('click', e => {
+      v.marker = L.marker([v.lat, v.lng], { icon: circleIcon(colour) });
+      v.marker.on('click', e => {
         L.DomEvent.stopPropagation(e);
         openSheet(v);
       });
-      marker.addTo(map);
+      v.marker.addTo(map);
+    });
+
+    // ── Filter pills ──
+    const filterTests = {
+      all:     () => true,
+      tonight: v => v.availability.toLowerCase() === 'available now',
+      food:    v => v.category === 'restaurant',
+      sport:   v => v.category === 'sport',
+      culture: v => v.category === 'culture',
+      free:    v => v.price.toLowerCase() === 'free'
+    };
+
+    document.querySelectorAll('.pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+
+        const test = filterTests[pill.dataset.filter];
+        venues.forEach(v => {
+          const show = test(v);
+          if (show && !map.hasLayer(v.marker)) v.marker.addTo(map);
+          if (!show && map.hasLayer(v.marker)) map.removeLayer(v.marker);
+        });
+
+        closeSheet();
+      });
+    });
+
+    // ── Bottom nav tab switching ──
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+      });
     });
   </script>
 
